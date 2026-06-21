@@ -7,6 +7,8 @@ export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
 
+const USE_MOCK = true;
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState<string | null>(null);
