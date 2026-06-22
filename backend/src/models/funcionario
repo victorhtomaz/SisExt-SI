@@ -1,0 +1,13 @@
+import { Usuario } from "./usuario";
+
+export interface Funcionario extends Usuario {
+    usuario_id: number;
+    siape: string;
+    tipo: string;
+    departamento: string;
+    instituto: string;
+    membro_comissao: boolean;
+    usuario?: Usuario;
+}
+
+type FuncionarioType = "docente" | "tecnico-administrativo";

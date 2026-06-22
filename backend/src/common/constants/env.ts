@@ -1,4 +1,5 @@
 import jetEnv, { num } from 'jet-env';
+import { str } from 'jet-env';
 import tspo from 'tspo';
 
 /******************************************************************************
@@ -17,6 +18,7 @@ export const NodeEnvs = {
 ******************************************************************************/
 
 const EnvVars = jetEnv({
+  DatabaseUrl: str,
   NodeEnv: (v) => tspo.isValue(NodeEnvs, v),
   Port: num,
 });

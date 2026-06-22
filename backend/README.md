@@ -34,6 +34,26 @@ Run the production build (Must be built first).
 
 Check for typescript errors.
 
+### `npm run db:generate`
+
+Generate Drizzle migrations from the schema in `src/db/schema`.
+
+### `npm run db:migrate`
+
+Run pending Drizzle migrations against the database configured in `DATABASE_URL`.
+
+### `npm run db:push`
+
+Push the current schema directly to the database without creating migration files.
+
+### `npm run db:studio`
+
+Open Drizzle Studio for the current database connection.
+
+## Database
+
+The Drizzle setup lives in `src/db` and uses `DATABASE_URL` from the environment files in `config/`.
+
 ## Additional Notes
 
 - If `npm run dev` gives you issues with bcrypt on MacOS you may need to run: `npm rebuild bcrypt --build-from-source`.

@@ -5,6 +5,7 @@
     "lib": ["ES2020"],
     "strict": true,
     "baseUrl": "./",
+    "ignoreDeprecations": "6.0",
     "outDir": "dist",
     "esModuleInterop": true,
     "skipLibCheck": true,
