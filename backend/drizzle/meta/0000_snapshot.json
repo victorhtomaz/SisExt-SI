@@ -1,0 +1,258 @@
+{
+	"id": "786a07ef-a652-48f8-9056-260dd6bccefa",
+	"prevId": "00000000-0000-0000-0000-000000000000",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.alunos": {
+			"name": "alunos",
+			"schema": "",
+			"columns": {
+				"usuario_id": {
+					"name": "usuario_id",
+					"type": "integer",
+					"primaryKey": true,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"alunos_usuario_id_usuarios_id_fk": {
+					"name": "alunos_usuario_id_usuarios_id_fk",
+					"tableFrom": "alunos",
+					"tableTo": "usuarios",
+					"columnsFrom": ["usuario_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.funcionarios": {
+			"name": "funcionarios",
+			"schema": "",
+			"columns": {
+				"usuario_id": {
+					"name": "usuario_id",
+					"type": "integer",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"siape": {
+					"name": "siape",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"tipo": {
+					"name": "tipo",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"departamento": {
+					"name": "departamento",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"instituto": {
+					"name": "instituto",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"membro_comissao": {
+					"name": "membro_comissao",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"funcionarios_usuario_id_usuarios_id_fk": {
+					"name": "funcionarios_usuario_id_usuarios_id_fk",
+					"tableFrom": "funcionarios",
+					"tableTo": "usuarios",
+					"columnsFrom": ["usuario_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"funcionarios_siape_unique": {
+					"name": "funcionarios_siape_unique",
+					"nullsNotDistinct": false,
+					"columns": ["siape"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.matriculas": {
+			"name": "matriculas",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"aluno_id": {
+					"name": "aluno_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"matricula": {
+					"name": "matricula",
+					"type": "varchar(12)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"curso": {
+					"name": "curso",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"nivel": {
+					"name": "nivel",
+					"type": "varchar(128)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"status": {
+					"name": "status",
+					"type": "varchar(64)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"periodo_ingresso": {
+					"name": "periodo_ingresso",
+					"type": "varchar(10)",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"matriculas_aluno_id_alunos_usuario_id_fk": {
+					"name": "matriculas_aluno_id_alunos_usuario_id_fk",
+					"tableFrom": "matriculas",
+					"tableTo": "alunos",
+					"columnsFrom": ["aluno_id"],
+					"columnsTo": ["usuario_id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"matriculas_matricula_unique": {
+					"name": "matriculas_matricula_unique",
+					"nullsNotDistinct": false,
+					"columns": ["matricula"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.usuarios": {
+			"name": "usuarios",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"nome": {
+					"name": "nome",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"cpf": {
+					"name": "cpf",
+					"type": "varchar(12)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"email": {
+					"name": "email",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"celular": {
+					"name": "celular",
+					"type": "varchar(20)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"senha_hash": {
+					"name": "senha_hash",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"data_nascimento": {
+					"name": "data_nascimento",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"ativo": {
+					"name": "ativo",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"usuarios_cpf_unique": {
+					"name": "usuarios_cpf_unique",
+					"nullsNotDistinct": false,
+					"columns": ["cpf"]
+				},
+				"usuarios_email_unique": {
+					"name": "usuarios_email_unique",
+					"nullsNotDistinct": false,
+					"columns": ["email"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
+}

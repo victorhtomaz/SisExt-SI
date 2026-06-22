@@ -1,9 +1,10 @@
 export interface Usuario {
-  id: number;
-  nome: string;
-  cpf: string;
-  email: string;
-  senha_hash: string;
-  data_nascimento: Date;
-  ativo: boolean;
+	id: number;
+	nome: string;
+	cpf: string;
+	email: string;
+	celular: string;
+	senhaHash: string;
+	dataNascimento: Date;
+	ativo: boolean;
 }

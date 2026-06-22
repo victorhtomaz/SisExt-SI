@@ -1,8 +1,8 @@
-import { Matricula } from "./matricula";
-import { Usuario } from "./usuario";
+import type { Matricula } from "./matricula";
+import type { Usuario } from "./usuario";
 
 export interface Aluno extends Usuario {
-    usuario_id: number;
-    usuario?: Usuario;
-    matriculas?: Matricula[];
+	usuarioId?: number;
+	usuario?: Usuario;
+	matriculas?: Matricula[];
 }

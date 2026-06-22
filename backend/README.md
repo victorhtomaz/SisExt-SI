@@ -1,59 +1,99 @@
-## About
+# Especificações das rotas
 
-This project was created with [express-generator-typescript](https://github.com/seanpmaxwell/express-generator-typescript).
+## Endpoint POST /api/usuários
 
-## Available Scripts
+- Criação de um usuário, que deve ser obrigatoriamente um aluno ou funcionário.
+- A diferenciação é dada pelo campo `tipo` podendo ser `"ALUNO"` ou `"FUNCIONARIO"`.
 
-### `npm run clean-install`
+### Exemplos de payloads de Requisição
 
-Remove the existing `node_modules/` folder, `package-lock.json`, and reinstall all library modules.
+### Opção A: Cadastro de Aluno
 
-### `npm run dev` 
+Utilize este formato quando o campo `tipo` for `"ALUNO"`.
 
-Run the server in development with hot reloading and browser refresh (see `package.json` for all `npm run dev` variations)<br/>
+```json
+{
+  "nome": "Joaquim",
+  "cpf": "123.456.789-00",
+  "email": "joaquim.silva@ufrrj.com",
+  "celular": "(21) 99999-8888",
+  "senha": "SenhaSegura123",
+  "dataNascimento": "2002-05-15",
+  "tipo": "ALUNO",
+  "detalhesPerfil": {
+    "matricula": "20260010123",
+    "curso": "Sistemas de Informação",
+    "nivel": "Graduação",
+    "periodoIngresso": "2026.1"
+  }
+}
+```
 
-**IMPORTANT** development mode uses `swc` for performance reasons which DOES NOT check for typescript errors. Run `npm run type-check` to check for type errors. NOTE: you should use your IDE to prevent most type errors.
+**📌 Validações de Negócio do Perfil de Aluno:**
 
-### `npm test`
+- `detalhesPerfil.nivel`: Deve ser obrigatoriamente um dos valores: `"Graduação"`, `"Pós-graduação"`, `"Mestrado"` ou `"Doutorado"`.
 
-Run unit-tests with <a href="https://vitest.dev/guide/">vitest</a>.
+### Opção B: Cadastro de Funcionário / Professor
 
-### `npm run lint`
+Utilize este formato quando o campo `tipo` for `"FUNCIONARIO"`.
 
-Check for linting errors.
+```json
+{
+  "nome": "Tiago Franca",
+  "cpf": "222.333.444-55",
+  "email": "tiago.franca@ufrr.com",
+  "celular": "11965432109",
+  "senha": "SenhaClaramenteForte",
+  "dataNascimento": "1975-07-14",
+  "tipo": "FUNCIONARIO",
+  "detalhesPerfil": {
+    "siape": "3691215",
+    "tipo": "Docente",
+    "departamento": "Departamento de Computação",
+    "instituto": "ICE",
+    "membroComissao": true
+  }
+}
+```
 
-### `npm run build`
+**📌 Validações de Negócio do Perfil de Funcionário:**
 
-Build the project for production.
+- `detalhesPerfil.tipo`: Deve ser obrigatoriamente um dos valores: `"Docente"` ou `"Técnico-Administrativo"`.
 
-### `npm start`
+## Respostas da API
 
-Run the production build (Must be built first).
+### Status 201: Created
 
-### `npm run type-check`
+```json
+{
+  "id": 42,
+  "message": "Usuário criado com sucesso"
+}
+```
 
-Check for typescript errors.
+### Status 400: Bad Request
 
-### `npm run db:generate`
+Retornado quando o payload enviado não atende às restrições do esquema de validação. Os erros são mapeados por caminho.
 
-Generate Drizzle migrations from the schema in `src/db/schema`.
+```json
+{
+  "message": "Erro de validação",
+  "errors": {
+    "senha": ["A senha deve ter pelo menos 6 caracteres"],
+    "detalhesPerfil.matricula": ["Matrícula é obrigatória para alunos"]
+  }
+}
+```
 
-### `npm run db:migrate`
+### Status 409: Conflict
 
-Run pending Drizzle migrations against the database configured in `DATABASE_URL`.
+Retornado em caso de tentativa de cadastro de um dado único (E-mail, CPF, Matrícula ou SIAPE) que já está em uso por outro usuário no banco de dados.
 
-### `npm run db:push`
-
-Push the current schema directly to the database without creating migration files.
-
-### `npm run db:studio`
-
-Open Drizzle Studio for the current database connection.
-
-## Database
-
-The Drizzle setup lives in `src/db` and uses `DATABASE_URL` from the environment files in `config/`.
-
-## Additional Notes
-
-- If `npm run dev` gives you issues with bcrypt on MacOS you may need to run: `npm rebuild bcrypt --build-from-source`.
+```json
+{
+  "message": "Erro ao criar usuário",
+  "errors": {
+    "general": ["Este CPF já está cadastrado."]
+  }
+}
+```

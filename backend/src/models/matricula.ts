@@ -1,12 +1,12 @@
 export interface Matricula {
-    id: number;
-    aluno_id: number;
-    matricula: string;
-    curso: string;
-    nivel: MatriculaNivel;
-    status: MatriculaStatus;
-    periodo_ingresso: string;
+	id: number;
+	alunoId: number;
+	matricula: string;
+	curso: string;
+	nivel: MatriculaNivel;
+	status: MatriculaStatus;
+	periodoIngresso: string;
 }
 
-type MatriculaStatus = "ativa" | "trancada" | "concluida" | "cancelada";
-type MatriculaNivel = "graduação"| "pós-graduação" | "mestrado" | "doutorado";
+type MatriculaStatus = "Ativa" | "Trancada" | "Concluída" | "Cancelada";
+type MatriculaNivel = "Graduação" | "Pós-graduação" | "Mestrado" | "Doutorado";

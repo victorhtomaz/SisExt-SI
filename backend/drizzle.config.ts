@@ -1,17 +1,13 @@
-import { defineConfig } from 'drizzle-kit';
-import jetEnv, { str } from 'jet-env';
+import dotenv from "dotenv";
+import { defineConfig } from "drizzle-kit";
 
-import 'dotenv/config';
-
-const { DatabaseUrl } = jetEnv({
-  DatabaseUrl: str,
-});
+dotenv.config();
 
 export default defineConfig({
-  dialect: 'postgresql',
-  schema: './src/db/schema/index.ts',
-  out: './drizzle',
-  dbCredentials: {
-    url: DatabaseUrl,
-  },
+	out: "./drizzle",
+	schema: "./src/db/schema/index.ts",
+	dialect: "postgresql",
+	dbCredentials: {
+		url: process.env.DATABASE_URL ?? "",
+	},
 });
