@@ -96,7 +96,7 @@ userRoutes.patch("/", autenticarMiddleware, async (req, res) => {
 		const tokenPayload = req.token!;
 
 		await atualizarUsuario(result.data, tokenPayload);
-		return res.status(StatusCodes.OK).send();
+		return res.status(StatusCodes.NO_CONTENT).send();
 	} catch (error: unknown) {
 		if (error instanceof AppError) {
 			const errorResponse: ErrorResponse = {

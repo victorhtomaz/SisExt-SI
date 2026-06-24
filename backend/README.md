@@ -249,6 +249,38 @@ Rota: *GET api/usuarios/21*
 }
 ```
 
+## Endpoint PATCH api/usuarios
+
+- Atualiza os dados do usuário logado
+- A requisição deve ser enviada com o token com o header: `Authorization: Bearer <token_jwt>`
+
+### Exemplo de Requisição
+
+```json
+{
+    "email": "joaquim.novoemail@ufrrj.br",
+    "celular": "5521988887777",
+    "detalhesPerfil": {
+    "matriculaId": 17,
+    "status": "Trancado"
+  }
+}
+```
+
+- Todos os campos são opcionais, entretanto se adicionar `detalhesPerfil` é obrigatório passar a `matriculaId`
+
+```json
+{
+  "email": "tiago.franca@ufrrj.com",
+  "celular": "5511965432109",
+  "detalhesPerfil": {
+    "departamento": "Departamento de Computação",
+    "instituto": "ICE",
+    "membroComissao": true
+  }
+}
+```
+
 ## Endpoint DELETE api/usuarios
 
 - Realiza soft delete na conta do usuário logado.
