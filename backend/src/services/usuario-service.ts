@@ -1,11 +1,19 @@
 import bcrypt from "bcrypt";
 import type { CreateUsuarioRequest } from "@/dtos/requests/create-usuario-request";
 import type { DeletarUsuarioRequest } from "@/dtos/requests/deletar-usuario-requets";
+import type { AlunoResponse } from "@/dtos/responses/aluno-response";
 import type { CreatedUsuarioResponse } from "@/dtos/responses/created-usuario-response";
-import { AppError, ConflictError } from "@/errors/app-error";
+import type { FuncionarioResponse } from "@/dtos/responses/funcionario-response";
+import {
+	AppError,
+	ConflictError,
+	ForbiddenError,
+	NotFoundError,
+} from "@/errors/app-error";
 import type { Aluno } from "@/models/aluno";
 import type { Funcionario } from "@/models/funcionario";
 import {
+	buscarUsuarioPorId,
 	criarAlunoRepository,
 	criarFuncionarioRepository,
 	deletarUsuario,
@@ -15,6 +23,8 @@ import {
 	existeUsuarioComSiape,
 } from "@/repositories/usuario-repository";
 import { normalizeCelular, normalizeCpf } from "@/utils/normalize";
+import { extrairPapelAtivo } from "@/utils/permissoes";
+import type { TokenPayload } from "./token-service";
 
 export async function createUserService(
 	request: CreateUsuarioRequest,
@@ -98,6 +108,67 @@ export async function createUserService(
 		id: userId,
 		mensagem: "Usuário criado com sucesso",
 	};
+}
+
+export async function listarUsuarioPorId(
+	usuarioId: number,
+	usuarioAutenticado: TokenPayload,
+): Promise<AlunoResponse | FuncionarioResponse> {
+	const usuario = await buscarUsuarioPorId(usuarioId);
+	if (!usuario) throw new NotFoundError("Usuário não encontrado");
+
+	const usuarioPerfil = extrairPapelAtivo(usuario);
+
+	if (
+		usuarioAutenticado.papel === "Aluno" &&
+		usuarioPerfil === "Aluno" &&
+		usuarioAutenticado.usuarioId !== usuarioId
+	) {
+		throw new ForbiddenError(
+			"Acesso negado. Alunos só podem acessar seus próprios dados.",
+		);
+	}
+
+	if (usuarioPerfil === "Aluno") {
+		const alunoResponse: AlunoResponse = {
+			id: usuario.id,
+			nome: usuario.nome,
+			cpf: usuario.cpf,
+			email: usuario.email,
+			celular: usuario.celular,
+			dataNascimento: usuario.dataNascimento,
+			matriculas:
+				usuario.aluno.matriculas.map((matricula) => ({
+					id: matricula.id,
+					matricula: matricula.matricula,
+					curso: matricula.curso,
+					nivel: matricula.nivel,
+					status: matricula.status,
+					periodoIngresso: matricula.periodoIngresso,
+				})) || [],
+		};
+		return alunoResponse;
+	} else if (
+		usuarioPerfil === "Funcionário" ||
+		usuarioPerfil === "Membro da comissão"
+	) {
+		const funcionarioResponse: FuncionarioResponse = {
+			id: usuario.id,
+			nome: usuario.nome,
+			cpf: usuario.cpf,
+			email: usuario.email,
+			celular: usuario.celular,
+			dataNascimento: usuario.dataNascimento,
+			siape: usuario.funcionario.siape,
+			tipo: usuario.funcionario.tipo,
+			departamento: usuario.funcionario.departamento,
+			instituto: usuario.funcionario.instituto,
+			membroComissao: usuario.funcionario.membroComissao,
+		};
+		return funcionarioResponse;
+	} else {
+		throw new NotFoundError("Perfil de usuário não encontrado");
+	}
 }
 
 export async function deletarUsuarioService(

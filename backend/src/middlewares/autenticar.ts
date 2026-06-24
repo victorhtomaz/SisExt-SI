@@ -28,7 +28,7 @@ export async function autenticarMiddleware(
 
 		req.token = decodedToken;
 		next();
-	} catch (error) {
+	} catch (_error) {
 		return res.status(403).json({
 			error: "Token inválido ou expirado.",
 		});

@@ -136,6 +136,22 @@ export async function existeUsuarioAtivoComId(
 	return resultado.length > 0;
 }
 
+export async function buscarUsuarioPorId(usuarioId: number) {
+	const resultado = await db.query.usuarios.findFirst({
+		where: eq(usuarios.id, usuarioId),
+		with: {
+			funcionario: true,
+			aluno: {
+				with: {
+					matriculas: true,
+				},
+			},
+		},
+	});
+
+	return resultado;
+}
+
 export async function deletarUsuario(usuarioId: number): Promise<void> {
 	await db
 		.update(usuarios)
