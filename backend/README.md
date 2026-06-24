@@ -138,3 +138,33 @@ Retornado em caso de tentativa de cadastro de um dado único (E-mail, CPF, Matr�
     }
 }
 ```
+## Endpoint POST api/auth/validar
+
+- Verifica se o token Jwt enviado está valido.
+- A requisição deve ser enviada com o token com o header: `Authorization: Bearer <token_jwt>`
+
+### Respostas da API
+
+### Status 200
+
+```json
+{
+    "message": "Token válido"
+}
+```
+
+### Status 401: Unauthorized
+
+```json
+{
+    "error": "Acesso negado. Token de autenticação não fornecido."
+}
+```
+
+### Status 403: Forbidden
+
+```json
+{
+    "error": "Token inválido ou expirado."
+}
+```
