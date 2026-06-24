@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { alunos, funcionarios, matriculas, usuarios } from "@/db/schema";
+import type { UsuarioComRelacionamentos } from "@/db/types/usuario";
 import type { Aluno } from "@/models/aluno";
 import type { Funcionario } from "@/models/funcionario";
 
@@ -150,6 +151,49 @@ export async function buscarUsuarioPorId(usuarioId: number) {
 	});
 
 	return resultado;
+}
+
+export async function atualizarAluno(
+	usuario: UsuarioComRelacionamentos,
+	matriculaId: number,
+): Promise<void> {
+	const alterarMatricula = matriculaId !== 0;
+
+	const matricula = usuario.aluno?.matriculas.find((m) => m.id === matriculaId);
+
+	await db.transaction(async (tx) => {
+		await tx
+			.update(usuarios)
+			.set({ email: usuario.email, celular: usuario.celular })
+			.where(eq(usuarios.id, usuario.id));
+
+		if (alterarMatricula && matricula) {
+			await tx
+				.update(matriculas)
+				.set({ status: matricula.status })
+				.where(eq(matriculas.id, matricula.id));
+		}
+	});
+}
+
+export async function atualizarFuncionario(
+	usuario: UsuarioComRelacionamentos,
+): Promise<void> {
+	await db.transaction(async (tx) => {
+		await tx
+			.update(usuarios)
+			.set({ email: usuario.email, celular: usuario.celular })
+			.where(eq(usuarios.id, usuario.id));
+
+		await tx
+			.update(funcionarios)
+			.set({
+				departamento: usuario.funcionario?.departamento,
+				instituto: usuario.funcionario?.instituto,
+				membroComissao: usuario.funcionario?.membroComissao,
+			})
+			.where(eq(funcionarios.usuarioId, usuario.id));
+	});
 }
 
 export async function deletarUsuario(usuarioId: number): Promise<void> {

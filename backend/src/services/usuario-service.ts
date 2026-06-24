@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import type { CreateUsuarioRequest } from "@/dtos/requests/create-usuario-request";
 import type { DeletarUsuarioRequest } from "@/dtos/requests/deletar-usuario-requets";
+import type { UpdateUsuarioRequest } from "@/dtos/requests/update-usuario-request";
 import type { AlunoResponse } from "@/dtos/responses/aluno-response";
 import type { CreatedUsuarioResponse } from "@/dtos/responses/created-usuario-response";
 import type { FuncionarioResponse } from "@/dtos/responses/funcionario-response";
@@ -13,6 +14,8 @@ import {
 import type { Aluno } from "@/models/aluno";
 import type { Funcionario } from "@/models/funcionario";
 import {
+	atualizarAluno,
+	atualizarFuncionario,
 	buscarUsuarioPorId,
 	criarAlunoRepository,
 	criarFuncionarioRepository,
@@ -168,6 +171,78 @@ export async function listarUsuarioPorId(
 		return funcionarioResponse;
 	} else {
 		throw new NotFoundError("Perfil de usuário não encontrado");
+	}
+}
+
+export async function atualizarUsuario(
+	request: UpdateUsuarioRequest,
+	usuarioAutenticado: TokenPayload,
+) {
+	const usuario = await buscarUsuarioPorId(usuarioAutenticado.usuarioId);
+	if (!usuario) throw new NotFoundError("Usuário não encontrado");
+
+	const papelAtivo = extrairPapelAtivo(usuario);
+	if (!papelAtivo)
+		throw new ForbiddenError("Não é possível atualizar o perfil");
+
+	if (request.email && request.email !== usuario.email) {
+		const emailCadastrado = await existeUsuarioComEmail(request.email);
+		if (emailCadastrado) {
+			throw new ConflictError("Este e-mail já está registrado no sistema.");
+		}
+	}
+
+	if (request.email) usuario.email = request.email;
+	if (request.celular) usuario.celular = request.celular;
+
+	if (papelAtivo === "Aluno") {
+		let matriculaValidaId = 0;
+		if (request.detalhesPerfil) {
+			const perfilAluno = request.detalhesPerfil as {
+				matriculaId: number;
+				status?: string;
+			};
+			const matriculaValida = usuario.aluno.matriculas.find(
+				(m) => m.id === perfilAluno.matriculaId,
+			);
+			if (!matriculaValida) {
+				throw new ForbiddenError(
+					"A matrícula informada não pertence ao seu usuário ou é inválida.",
+				);
+			}
+
+			matriculaValidaId = matriculaValida.id;
+			if (perfilAluno.status) {
+				matriculaValida.status = perfilAluno.status;
+			}
+		}
+
+		await atualizarAluno(usuario, matriculaValidaId);
+	} else if (
+		papelAtivo === "Funcionário" ||
+		papelAtivo === "Membro da comissão"
+	) {
+		if (request.detalhesPerfil) {
+			const perfilFuncionario = request.detalhesPerfil as {
+				membroComissao?: boolean;
+				departamento?: string;
+				instituto?: string;
+			};
+
+			if (perfilFuncionario.membroComissao !== undefined) {
+				usuario.funcionario.membroComissao = perfilFuncionario.membroComissao;
+			}
+
+			if (perfilFuncionario.departamento) {
+				usuario.funcionario.departamento = perfilFuncionario.departamento;
+			}
+
+			if (perfilFuncionario.instituto) {
+				usuario.funcionario.instituto = perfilFuncionario.instituto;
+			}
+		}
+
+		await atualizarFuncionario(usuario);
 	}
 }
 

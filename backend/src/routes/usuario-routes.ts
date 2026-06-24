@@ -2,10 +2,12 @@ import { Router } from "express";
 import { StatusCodes } from "http-status-codes";
 import z from "zod";
 import { createUsuarioSchema } from "@/dtos/requests/create-usuario-request";
+import { updateUsuarioSchema } from "@/dtos/requests/update-usuario-request";
 import type { ErrorResponse } from "@/dtos/responses/error-response";
 import { AppError } from "@/errors/app-error";
 import { autenticarMiddleware } from "@/middlewares/autenticar";
 import {
+	atualizarUsuario,
 	createUserService,
 	deletarUsuarioService,
 	listarUsuarioPorId,
@@ -67,6 +69,38 @@ userRoutes.get("/:id", autenticarMiddleware, async (req, res) => {
 		if (error instanceof AppError) {
 			const errorResponse: ErrorResponse = {
 				message: "Erro ao listar usuário",
+				errors: { general: [error.message] },
+			};
+			return res.status(error.statusCode).json(errorResponse);
+		} else {
+			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+				message: error.message,
+			});
+		}
+	}
+});
+
+userRoutes.patch("/", autenticarMiddleware, async (req, res) => {
+	try {
+		const result = updateUsuarioSchema.safeParse(req.body);
+		if (!result.success) {
+			const errorResponse: ErrorResponse = {
+				message: "Erro de validação",
+				errors: z.flattenError(result.error).fieldErrors as Record<
+					string,
+					string[]
+				>,
+			};
+			return res.status(StatusCodes.BAD_REQUEST).json(errorResponse);
+		}
+		const tokenPayload = req.token!;
+
+		await atualizarUsuario(result.data, tokenPayload);
+		return res.status(StatusCodes.OK).send();
+	} catch (error: unknown) {
+		if (error instanceof AppError) {
+			const errorResponse: ErrorResponse = {
+				message: "Erro ao atualizar usuário",
 				errors: { general: [error.message] },
 			};
 			return res.status(error.statusCode).json(errorResponse);

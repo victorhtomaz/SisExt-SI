@@ -23,7 +23,8 @@ export function extrairPapelAtivo(
 
 	if (usuario.aluno?.matriculas) {
 		const temMatriculaAtiva = usuario.aluno.matriculas.some(
-			(matricula) => matricula.status === "Ativa",
+			(matricula) =>
+				matricula.status !== "Concluída" && matricula.status !== "Cancelada",
 		);
 
 		if (temMatriculaAtiva) {
