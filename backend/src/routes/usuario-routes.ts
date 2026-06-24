@@ -57,17 +57,9 @@ userRoutes.delete("/", autenticarMiddleware, async (req, res) => {
 		});
 		return res.status(StatusCodes.NO_CONTENT).send();
 	} catch (error: unknown) {
-		if (error instanceof AppError) {
-			const errorResponse: ErrorResponse = {
-				message: "Erro ao deletar usuário",
-				errors: { general: [error.message] },
-			};
-			return res.status(error.statusCode).json(errorResponse);
-		} else {
-			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-				message: error.message,
-			});
-		}
+		return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+			message: error.message,
+		});
 	}
 });
 

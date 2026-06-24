@@ -1,6 +1,6 @@
 # Especificações das rotas
 
-## Endpoint POST /api/usuários
+## Endpoint POST /api/usuarios
 
 - Criação de um usuário, que deve ser obrigatoriamente um aluno ou funcionário.
 - A diferenciação é dada pelo campo `tipo` podendo ser `"ALUNO"` ou `"FUNCIONARIO"`.
@@ -168,3 +168,12 @@ Retornado em caso de tentativa de cadastro de um dado único (E-mail, CPF, Matr�
     "error": "Token inválido ou expirado."
 }
 ```
+
+## Endpoint DELETE api/usuarios
+
+- Realiza soft delete na conta do usuário logado.
+- A requisição deve ser enviada com o token com o header: `Authorization: Bearer <token_jwt>`
+
+### Respostas da API
+
+### Status 204: No Content
