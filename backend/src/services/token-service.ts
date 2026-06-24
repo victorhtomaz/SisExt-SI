@@ -4,7 +4,7 @@ import { JWT_EXPIRATION_M, JWT_SECRET } from "@/utils/constants";
 const ACCESS_TOKEN_SECRET = JWT_SECRET;
 const TOKEN_EXPIRATION_TIME = Number(JWT_EXPIRATION_M);
 
-interface TokenPayload {
+export interface TokenPayload {
 	usuarioId: number;
 	email: string;
 	papel: string;

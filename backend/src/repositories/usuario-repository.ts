@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { alunos, funcionarios, matriculas, usuarios } from "@/db/schema";
 import type { Aluno } from "@/models/aluno";
@@ -111,7 +111,7 @@ export async function criarFuncionarioRepository(
 
 export async function buscarUsuarioPorEmail(email: string) {
 	const resultado = await db.query.usuarios.findFirst({
-		where: eq(usuarios.email, email),
+		where: and(eq(usuarios.email, email), eq(usuarios.ativo, true)),
 		with: {
 			funcionario: true,
 			aluno: {
@@ -123,4 +123,22 @@ export async function buscarUsuarioPorEmail(email: string) {
 	});
 
 	return resultado;
+}
+
+export async function existeUsuarioAtivoComId(
+	usuarioId: number,
+): Promise<boolean> {
+	const resultado = await db
+		.select({ id: usuarios.id })
+		.from(usuarios)
+		.where(and(eq(usuarios.id, usuarioId), eq(usuarios.ativo, true)));
+
+	return resultado.length > 0;
+}
+
+export async function deletarUsuario(usuarioId: number): Promise<void> {
+	await db
+		.update(usuarios)
+		.set({ ativo: false })
+		.where(and(eq(usuarios.id, usuarioId), eq(usuarios.ativo, true)));
 }

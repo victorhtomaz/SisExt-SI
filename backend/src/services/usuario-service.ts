@@ -1,12 +1,14 @@
 import bcrypt from "bcrypt";
 import type { CreateUsuarioRequest } from "@/dtos/requests/create-usuario-request";
+import type { DeletarUsuarioRequest } from "@/dtos/requests/deletar-usuario-requets";
 import type { CreatedUsuarioResponse } from "@/dtos/responses/created-usuario-response";
-import { ConflictError } from "@/errors/app-error";
+import { AppError, ConflictError } from "@/errors/app-error";
 import type { Aluno } from "@/models/aluno";
 import type { Funcionario } from "@/models/funcionario";
 import {
 	criarAlunoRepository,
 	criarFuncionarioRepository,
+	deletarUsuario,
 	existeUsuarioComCpf,
 	existeUsuarioComEmail,
 	existeUsuarioComMatricula,
@@ -96,4 +98,14 @@ export async function createUserService(
 		id: userId,
 		mensagem: "Usuário criado com sucesso",
 	};
+}
+
+export async function deletarUsuarioService(
+	request: DeletarUsuarioRequest,
+): Promise<void> {
+	if (!request.usuarioId) {
+		throw new AppError("ID do usuário não fornecido.");
+	}
+
+	await deletarUsuario(request.usuarioId);
 }

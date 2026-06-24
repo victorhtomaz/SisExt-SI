@@ -4,7 +4,11 @@ import z from "zod";
 import { createUsuarioSchema } from "@/dtos/requests/create-usuario-request";
 import type { ErrorResponse } from "@/dtos/responses/error-response";
 import { AppError } from "@/errors/app-error";
-import { createUserService } from "@/services/usuario-service";
+import { autenticarMiddleware } from "@/middlewares/autenticar";
+import {
+	createUserService,
+	deletarUsuarioService,
+} from "@/services/usuario-service";
 
 const userRoutes = Router();
 
@@ -33,6 +37,29 @@ userRoutes.post("/", async (req, res) => {
 		if (error instanceof AppError) {
 			const errorResponse: ErrorResponse = {
 				message: "Erro ao criar usuário",
+				errors: { general: [error.message] },
+			};
+			return res.status(error.statusCode).json(errorResponse);
+		} else {
+			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+				message: error.message,
+			});
+		}
+	}
+});
+
+userRoutes.delete("/", autenticarMiddleware, async (req, res) => {
+	try {
+		const tokenPayload = req.token;
+
+		await deletarUsuarioService({
+			usuarioId: tokenPayload?.usuarioId,
+		});
+		return res.status(StatusCodes.NO_CONTENT).send();
+	} catch (error: unknown) {
+		if (error instanceof AppError) {
+			const errorResponse: ErrorResponse = {
+				message: "Erro ao deletar usuário",
 				errors: { general: [error.message] },
 			};
 			return res.status(error.statusCode).json(errorResponse);
