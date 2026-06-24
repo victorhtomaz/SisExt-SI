@@ -108,3 +108,19 @@ export async function criarFuncionarioRepository(
 		return usuarioSalvo.id;
 	});
 }
+
+export async function buscarUsuarioPorEmail(email: string) {
+	const resultado = await db.query.usuarios.findFirst({
+		where: eq(usuarios.email, email),
+		with: {
+			funcionario: true,
+			aluno: {
+				with: {
+					matriculas: true,
+				},
+			},
+		},
+	});
+
+	return resultado;
+}

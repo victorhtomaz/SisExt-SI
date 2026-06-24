@@ -60,7 +60,7 @@ Utilize este formato quando o campo `tipo` for `"FUNCIONARIO"`.
 
 - `detalhesPerfil.tipo`: Deve ser obrigatoriamente um dos valores: `"Docente"` ou `"Técnico-Administrativo"`.
 
-## Respostas da API
+### Respostas da API
 
 ### Status 201: Created
 
@@ -95,5 +95,46 @@ Retornado em caso de tentativa de cadastro de um dado único (E-mail, CPF, Matr�
   "errors": {
     "general": ["Este CPF já está cadastrado."]
   }
+}
+```
+
+## Endpoint POST api/auth/login
+
+- Realiza autenticação de um usuário
+- Gera um token JWT com informações do usuário
+
+### Exemplo de Requisição
+
+```json
+{
+  "email": "joaquim.silva@ufrrj.com",
+  "senha": "SenhaSegura123"
+}
+```
+
+### Respostas da API
+
+### Status 200: Ok
+
+```json
+{
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvSWQiOjIxLCJlbWFpbCI6ImpvYXF1aW0uc2lsdmFAdWZycmouY29tIiwicGFwZWwiOiJBbHVubyIsImlhdCI6MTc4MjI2ODcyNSwiZXhwIjoxNzgyMjY4Nzg1fQ.v7LJ-DMpUTspOqIsVDb62GRxWHCDzVxltH9ZweBRRv4"
+}
+```
+
+- O payload do token jwt contem: `usuarioId`, `email`, `papel` e `exp`.
+- O papel retornado pode ser: `Aluno`, `Funcionário` ou `Membro da comissão`. 
+
+
+### Status 401: Unauthorized
+
+```json
+{
+    "message": "Erro ao autenticar usuário",
+    "errors": {
+        "general": [
+            "Credenciais inválidas"
+        ]
+    }
 }
 ```

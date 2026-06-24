@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import { StatusCodes } from "http-status-codes";
+import authRoutes from "./routes/auth-route";
 import userRoutes from "./routes/usuario-routes";
 
 dotenv.config();
@@ -21,5 +22,6 @@ app.get("/", (_, res) => {
 });
 
 app.use("/api/usuarios", userRoutes);
+app.use("/api/auth", authRoutes);
 
 export default app;

@@ -8,3 +8,5 @@ export interface Usuario {
 	dataNascimento: Date;
 	ativo: boolean;
 }
+
+export type PapeisUsuario = "Aluno" | "Funcionário" | "Membro da comissão";

@@ -8,5 +8,9 @@ export interface Matricula {
 	periodoIngresso: string;
 }
 
-type MatriculaStatus = "Ativa" | "Trancada" | "Concluída" | "Cancelada";
-type MatriculaNivel = "Graduação" | "Pós-graduação" | "Mestrado" | "Doutorado";
+export type MatriculaStatus = "Ativa" | "Trancada" | "Concluída" | "Cancelada";
+export type MatriculaNivel =
+	| "Graduação"
+	| "Pós-graduação"
+	| "Mestrado"
+	| "Doutorado";
