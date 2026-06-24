@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { alunos, funcionarios, matriculas, usuarios } from "@/db/schema";
-import type { UsuarioComRelacionamentos } from "@/db/types/usuario";
+
 import type { Aluno } from "@/models/aluno";
 import type { Funcionario } from "@/models/funcionario";
 
@@ -43,7 +43,7 @@ export async function existeUsuarioComSiape(siape: string): Promise<boolean> {
 	return resultado.length > 0;
 }
 
-export async function criarAlunoRepository(aluno: Aluno): Promise<number> {
+export async function criarAluno(aluno: Aluno): Promise<number> {
 	return await db.transaction(async (tx) => {
 		const [usuarioSalvo] = await tx
 			.insert(usuarios)
@@ -62,10 +62,8 @@ export async function criarAlunoRepository(aluno: Aluno): Promise<number> {
 			usuarioId: usuarioSalvo.id,
 		});
 
-		if (!aluno.matriculas || aluno.matriculas.length === 0) {
-			throw new Error("Aluno deve ter uma matrícula");
-		}
-		const dadosMatricula = aluno.matriculas[0];
+		// biome-ignore lint/style/noNonNullAssertion: Validação de matrículas feita na camada de serviço
+		const dadosMatricula = aluno.matriculas![0];
 
 		await tx.insert(matriculas).values({
 			alunoId: usuarioSalvo.id,
@@ -80,7 +78,7 @@ export async function criarAlunoRepository(aluno: Aluno): Promise<number> {
 	});
 }
 
-export async function criarFuncionarioRepository(
+export async function criarFuncionario(
 	funcionario: Funcionario,
 ): Promise<number> {
 	return await db.transaction(async (tx) => {
@@ -154,45 +152,54 @@ export async function buscarUsuarioPorId(usuarioId: number) {
 }
 
 export async function atualizarAluno(
-	usuario: UsuarioComRelacionamentos,
-	matriculaId: number,
+	usuarioId: number,
+	dadosUsuario: { email?: string; celular?: string },
+	dadosMatricula?: { id: number; status: string },
 ): Promise<void> {
-	const alterarMatricula = matriculaId !== 0;
-
-	const matricula = usuario.aluno?.matriculas.find((m) => m.id === matriculaId);
-
 	await db.transaction(async (tx) => {
-		await tx
-			.update(usuarios)
-			.set({ email: usuario.email, celular: usuario.celular })
-			.where(eq(usuarios.id, usuario.id));
+		if (dadosUsuario.email || dadosUsuario.celular) {
+			await tx
+				.update(usuarios)
+				.set({ email: dadosUsuario.email, celular: dadosUsuario.celular })
+				.where(eq(usuarios.id, usuarioId));
+		}
 
-		if (alterarMatricula && matricula) {
+		if (dadosMatricula) {
 			await tx
 				.update(matriculas)
-				.set({ status: matricula.status })
-				.where(eq(matriculas.id, matricula.id));
+				.set({ status: dadosMatricula.status })
+				.where(eq(matriculas.id, dadosMatricula.id));
 		}
 	});
 }
 
 export async function atualizarFuncionario(
-	usuario: UsuarioComRelacionamentos,
+	usuarioId: number,
+	dadosUsuario: { email?: string; celular?: string },
+	dadosFuncionario?: {
+		departamento?: string;
+		instituto?: string;
+		membroComissao?: boolean;
+	},
 ): Promise<void> {
 	await db.transaction(async (tx) => {
-		await tx
-			.update(usuarios)
-			.set({ email: usuario.email, celular: usuario.celular })
-			.where(eq(usuarios.id, usuario.id));
+		if (dadosUsuario.email || dadosUsuario.celular) {
+			await tx
+				.update(usuarios)
+				.set({ email: dadosUsuario.email, celular: dadosUsuario.celular })
+				.where(eq(usuarios.id, usuarioId));
+		}
 
-		await tx
-			.update(funcionarios)
-			.set({
-				departamento: usuario.funcionario?.departamento,
-				instituto: usuario.funcionario?.instituto,
-				membroComissao: usuario.funcionario?.membroComissao,
-			})
-			.where(eq(funcionarios.usuarioId, usuario.id));
+		if (dadosFuncionario) {
+			await tx
+				.update(funcionarios)
+				.set({
+					departamento: dadosFuncionario.departamento,
+					instituto: dadosFuncionario.instituto,
+					membroComissao: dadosFuncionario.membroComissao,
+				})
+				.where(eq(funcionarios.usuarioId, usuarioId));
+		}
 	});
 }
 

@@ -1,4 +1,4 @@
-import { TokenPayload } from "@/services/token-service";
+import type { TokenPayload } from "@/services/token-service";
 
 declare global {
 	namespace Express {

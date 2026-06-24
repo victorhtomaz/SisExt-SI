@@ -6,8 +6,8 @@ import { autenticarMiddleware } from "@/middlewares/autenticar";
 import { validateRequest } from "@/middlewares/validate-request";
 import {
 	atualizarUsuario,
-	createUserService,
-	deletarUsuarioService,
+	criarUsuario,
+	excluirUsuario,
 	listarUsuarioPorId,
 } from "@/services/usuario-service";
 import { handleRouteError } from "@/utils/handle-route-error";
@@ -16,7 +16,7 @@ const userRoutes = Router();
 
 userRoutes.post("/", validateRequest(createUsuarioSchema), async (req, res) => {
 	try {
-		const { id, mensagem } = await createUserService(req.body);
+		const { id, mensagem } = await criarUsuario(req.body);
 		res.status(StatusCodes.CREATED).json({
 			id: id,
 			message: mensagem,
@@ -63,7 +63,7 @@ userRoutes.patch(
 userRoutes.delete("/", autenticarMiddleware, async (req, res) => {
 	try {
 		const tokenPayload = req.token!;
-		await deletarUsuarioService({
+		await excluirUsuario({
 			usuarioId: tokenPayload.usuarioId,
 		});
 		res.status(StatusCodes.NO_CONTENT).send();

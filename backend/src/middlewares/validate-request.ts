@@ -1,9 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { type AnyZodObject, ZodError } from "zod";
+import { ZodError, type ZodType } from "zod";
 import type { ErrorResponse } from "@/dtos/responses/error-response";
 
-export const validateRequest = (schema: AnyZodObject) => {
+export const validateRequest = (schema: ZodType) => {
 	return (req: Request, res: Response, next: NextFunction) => {
 		try {
 			req.body = schema.parse(req.body);

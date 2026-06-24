@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { LoginRequestSchema } from "@/dtos/requests/login-request";
 import { autenticarMiddleware } from "@/middlewares/autenticar";
 import { validateRequest } from "@/middlewares/validate-request";
-import { doLogin } from "@/services/auth-service";
+import { autenticarUsuario } from "@/services/auth-service";
 import { handleRouteError } from "@/utils/handle-route-error";
 
 const authRoutes = Router();
@@ -13,7 +13,7 @@ authRoutes.post(
 	validateRequest(LoginRequestSchema),
 	async (req, res) => {
 		try {
-			const response = await doLogin(req.body);
+			const response = await autenticarUsuario(req.body);
 			res.status(StatusCodes.OK).json(response);
 		} catch (error: unknown) {
 			handleRouteError(res, error, "Erro ao autenticar usuário");

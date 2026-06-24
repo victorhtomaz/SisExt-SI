@@ -6,22 +6,35 @@ import { buscarUsuarioPorEmail } from "@/repositories/usuario-repository";
 import { extrairPapelAtivo } from "@/utils/permissoes";
 import { tokenService } from "./token-service";
 
-export async function doLogin(request: LoginRequest): Promise<LoginResponse> {
-	const usuario = await buscarUsuarioPorEmail(request.email);
+export async function autenticarUsuario(
+	credenciais: LoginRequest,
+): Promise<LoginResponse> {
+	const usuario = await buscarUsuarioPorEmail(credenciais.email);
 
-	if (!usuario?.ativo) throw new UnauthorizedError("Credenciais inválidas");
+	if (!usuario?.ativo) {
+		throw new UnauthorizedError("Credenciais inválidas");
+	}
 
-	const senhaValida = await bcrypt.compare(request.senha, usuario.senhaHash);
-	if (!senhaValida) throw new UnauthorizedError("Credenciais inválidas");
+	const isSenhaValida = await bcrypt.compare(
+		credenciais.senha,
+		usuario.senhaHash,
+	);
 
-	const papelAtivo = extrairPapelAtivo(usuario);
+	if (!isSenhaValida) {
+		throw new UnauthorizedError("Credenciais inválidas");
+	}
 
-	if (!papelAtivo) throw new UnauthorizedError("Credenciais inválidas");
+	const papelUsuario = extrairPapelAtivo(usuario);
+
+	if (!papelUsuario) {
+		throw new UnauthorizedError("Credenciais inválidas");
+	}
 
 	const accessToken = tokenService.gerarToken({
 		usuarioId: usuario.id,
 		email: usuario.email,
-		papel: papelAtivo,
+		papel: papelUsuario,
 	});
+
 	return { accessToken };
 }
