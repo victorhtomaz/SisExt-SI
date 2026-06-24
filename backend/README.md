@@ -40,14 +40,14 @@ Utilize este formato quando o campo `tipo` for `"FUNCIONARIO"`.
 ```json
 {
   "nome": "Tiago Franca",
-  "cpf": "222.333.444-55",
-  "email": "tiago.franca@ufrr.com",
+  "cpf": "348.802.940-98",
+  "email": "tiago.franca@ufrrj.com",
   "celular": "11965432109",
   "senha": "SenhaClaramenteForte",
   "dataNascimento": "1975-07-14",
   "tipo": "FUNCIONARIO",
   "detalhesPerfil": {
-    "siape": "3691215",
+    "siape": "3691232",
     "tipo": "Docente",
     "departamento": "Departamento de Computação",
     "instituto": "ICE",
@@ -166,6 +166,86 @@ Retornado em caso de tentativa de cadastro de um dado único (E-mail, CPF, Matr�
 ```json
 {
     "error": "Token inválido ou expirado."
+}
+```
+
+## Endpoint GET api/usuarios/:id
+
+- Lista as informações de um usuário.
+- Um aluno apenas consegue visualizar suas informações e de funcionários.
+- Um funcionário tem acesso as todos os usuários.
+- A requisição deve ser enviada com o token com o header: `Authorization: Bearer <token_jwt>`
+
+### Exemplo de Requisição
+
+Rota: *GET api/usuarios/21*
+
+### Respostas da API
+
+### Status 200 - Caso seja Aluno
+
+```json
+{
+    "id": 21,
+    "nome": "Joaquim",
+    "cpf": "12345678900",
+    "email": "joaquim.silva@ufrrj.com",
+    "celular": "5521999998888",
+    "dataNascimento": "2002-05-15T00:00:00.000Z",
+    "matriculas": [
+        {
+            "id": 17,
+            "matricula": "20260010123",
+            "curso": "Sistemas de Informação",
+            "nivel": "Graduação",
+            "status": "Ativa",
+            "periodoIngresso": "2026.1"
+        }
+    ]
+}
+```
+
+### Status 200 - Caso seja Funcionário
+
+```json
+{
+    "id": 22,
+    "nome": "Tiago Franca",
+    "cpf": "34880294098",
+    "email": "tiago.franca@ufrrj.com",
+    "celular": "5511965432109",
+    "dataNascimento": "1975-07-14T00:00:00.000Z",
+    "siape": "3691232",
+    "tipo": "Docente",
+    "departamento": "Departamento de Computação",
+    "instituto": "ICE",
+    "membroComissao": true
+}
+```
+
+### Status 404 - Not Found
+
+```json
+{
+    "message": "Erro ao listar usuário",
+    "errors": {
+        "general": [
+            "Usuário não encontrado"
+        ]
+    }
+}
+```
+
+### Status 403: Forbidden
+
+```json
+{
+    "message": "Erro ao listar usuário",
+    "errors": {
+        "general": [
+            "Acesso negado. Alunos só podem acessar seus próprios dados."
+        ]
+    }
 }
 ```
 
