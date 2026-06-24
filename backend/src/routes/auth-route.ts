@@ -4,6 +4,7 @@ import z from "zod";
 import { LoginRequestSchema } from "@/dtos/requests/login-request";
 import type { ErrorResponse } from "@/dtos/responses/error-response";
 import { AppError } from "@/errors/app-error";
+import { autenticarMiddleware } from "@/middlewares/autenticar";
 import { doLogin } from "@/services/auth-service";
 
 const authRoutes = Router();
@@ -39,6 +40,10 @@ authRoutes.post("/login", async (req, res) => {
 			});
 		}
 	}
+});
+
+authRoutes.post("/validar", autenticarMiddleware, async (_, res) => {
+	res.status(StatusCodes.OK).json({ message: "Token válido" });
 });
 
 export default authRoutes;

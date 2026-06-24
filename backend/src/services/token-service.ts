@@ -16,4 +16,8 @@ export const tokenService = {
 			expiresIn: TOKEN_EXPIRATION_TIME,
 		});
 	},
+
+	validarToken: (token: string): TokenPayload => {
+		return jwt.verify(token, ACCESS_TOKEN_SECRET) as TokenPayload;
+	},
 };
