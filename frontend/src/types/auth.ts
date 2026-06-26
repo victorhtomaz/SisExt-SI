@@ -1,5 +1,11 @@
+export type AuthUser = {
+  id: number;
+  email: string;
+  papel: "Aluno" | "Funcionário" | "Membro da comissão";
+};
+
 export interface AuthContextType {
-  user: any | null;
+  user: AuthUser | null;
   token: string | null;
   loading: boolean;
   isAuthenticated: boolean;
