@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { UserRole } from "@/types";
 
 export function SignupForm() {
   const router = useRouter();
@@ -19,10 +18,31 @@ export function SignupForm() {
     data_nascimento: "",
     senha: "",
     confirmar_senha: "",
+
+    tipoUsuario: "ALUNO",
+
+    matricula: "",
+    curso: "",
+    nivel: "Graduação",
+    periodoIngresso: "",
+
+    siape: "",
+    tipoFuncionario: "Docente",
+    departamento: "",
+    instituto: "",
+    membroComissao: true,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement|HTMLSelectElement>) => {
     const { name, value } = e.target;
+
+    if(e.target instanceof HTMLInputElement && e.target.type==="checkbox"){
+      setFormData((prev)=>({
+        ...prev,
+        [name]:e.target.ariaChecked,
+      }));
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -41,17 +61,48 @@ export function SignupForm() {
     }
 
     try {
-      await signup({
-        ...formData,
-        role: UserRole.ALUNO,
-      });
+      const payload =
+        formData.tipoUsuario === "ALUNO"
+          ? {
+              nome: formData.nome,
+              cpf: formData.cpf,
+              email: formData.email,
+              celular: formData.celular,
+              senha: formData.senha,
+              dataNascimento: formData.data_nascimento,
+              tipo: "ALUNO",
+              detalhesPerfil: {
+                matricula: formData.matricula,
+                curso: formData.curso,
+                nivel: formData.nivel,
+                periodoIngresso: formData.periodoIngresso,
+              },
+            }
+          : {
+              nome: formData.nome,
+              cpf: formData.cpf,
+              email: formData.email,
+              celular: formData.celular,
+              senha: formData.senha,
+              dataNascimento: formData.data_nascimento,
+              tipo: "FUNCIONARIO",
+              detalhesPerfil: {
+                siape: formData.siape,
+                tipo: formData.tipoFuncionario,
+                departamento: formData.departamento,
+                instituto: formData.instituto,
+                membroComissao: formData.membroComissao,
+              },
+            };
 
-      router.push("/dashboard");
+      await signup(payload);
+
+      router.push("/login");
     } catch (err) {
+      const axiosError = err as any;
+
       setError(
-        err instanceof Error
-          ? err.message
-          : "Erro ao criar conta. Tente novamente."
+            axiosError.response?.data?.errors?.general?.[0] || axiosError.response?.data?.message || "Erro ao criar conta. Tente novamente."
       );
     } finally {
       setLoading(false);
@@ -143,6 +194,202 @@ export function SignupForm() {
           />
         </div>
       </div>
+
+      <div>
+        <label htmlFor="tipoUsuario" className="block text-sm font-medium text-gray-700">
+          Tipo de Usuário
+        </label>
+        <select id="tipoUsuario" name="tipoUsuario" value={formData.tipoUsuario} onChange={handleChange} required className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none">
+          <option value="ALUNO">Aluno</option>
+          <option value="FUNCIONARIO">Funcionário</option>
+        </select>
+      </div>
+      {formData.tipoUsuario === "ALUNO" && (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="matricula"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Matrícula
+              </label>
+              <input
+                id="matricula"
+                name="matricula"
+                type="text"
+                value={formData.matricula}
+                onChange={handleChange}
+                required
+                maxLength={12}
+                className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                placeholder="20260010124"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="curso"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Curso
+              </label>
+              <input
+                id="curso"
+                name="curso"
+                type="text"
+                value={formData.curso}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                placeholder="Sistemas de Informação"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="nivel"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Nível
+              </label>
+              <select
+                id="nivel"
+                name="nivel"
+                value={formData.nivel}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+              >
+                <option value="Graduação">Graduação</option>
+                <option value="Pós-graduação">Pós-graduação</option>
+                <option value="Mestrado">Mestrado</option>
+                <option value="Doutorado">Doutorado</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="periodoIngresso"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Período de ingresso
+              </label>
+              <input
+                id="periodoIngresso"
+                name="periodoIngresso"
+                type="text"
+                value={formData.periodoIngresso}
+                onChange={handleChange}
+                required
+                maxLength={10}
+                className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                placeholder="2026.1"
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {formData.tipoUsuario === "FUNCIONARIO" && (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="siape"
+                className="block text-sm font-medium text-gray-700"
+              >
+                SIAPE
+              </label>
+              <input
+                id="siape"
+                name="siape"
+                type="text"
+                value={formData.siape}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                placeholder="3691232"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="tipoFuncionario"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Tipo de funcionário
+              </label>
+              <select
+                id="tipoFuncionario"
+                name="tipoFuncionario"
+                value={formData.tipoFuncionario}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+              >
+                <option value="Docente">Docente</option>
+                <option value="Técnico-Administrativo">
+                  Técnico-Administrativo
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="departamento"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Departamento
+              </label>
+              <input
+                id="departamento"
+                name="departamento"
+                type="text"
+                value={formData.departamento}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                placeholder="Departamento de Computação"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="instituto"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Instituto
+              </label>
+              <input
+                id="instituto"
+                name="instituto"
+                type="text"
+                value={formData.instituto}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                placeholder="ICE"
+              />
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              name="membroComissao"
+              type="checkbox"
+              checked={formData.membroComissao}
+              onChange={handleChange}
+              className="h-4 w-4"
+            />
+            Membro da comissão
+          </label>
+        </>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div>

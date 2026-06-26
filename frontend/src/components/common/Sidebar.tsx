@@ -2,14 +2,12 @@
 
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
-import { User, UserRole } from "@/types";
 
 export function Sidebar() {
   const { user } = useAuth();
-  const userData = user as User | null;
 
-  const isAluno = userData?.role === UserRole.ALUNO;
-  const isFuncionario = userData?.role === UserRole.FUNCIONARIO;
+  const isAluno = user?.papel === "Aluno";
+  const isFuncionario = user?.papel === "Funcionário" || user?.papel === "Membro da comissão";
 
   return (
     <aside className="w-64 bg-gray-900 text-white shadow-lg">

@@ -1,31 +1,63 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import api from "@/lib/api";
 import { AuthContextType } from "@/types/auth";
+
+type AuthUser = {
+  id: number;
+  email: string;
+  papel: "Aluno" | "Funcionário" | "Membro da comissão";
+};
 
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
 
-const USE_MOCK = true;
+function decodeJwt(token: string): AuthUser {
+  const payload = token.split(".")[1];
+  const decoded = JSON.parse(atob(payload));
+
+  return {
+    id: decoded.usuarioId,
+    email: decoded.email,
+    papel: decoded.papel,
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Carregar token e usuário do localStorage ao montar
   useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
+    async function loadAuth() {
+      const savedToken = localStorage.getItem("token");
+      const savedUser = localStorage.getItem("user");
 
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
+      if (!savedToken || !savedUser) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        await api.post("/auth/validar");
+
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+      } catch {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setToken(null);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    setLoading(false);
+    loadAuth();
   }, []);
 
   const login = async (email: string, senha: string) => {
@@ -33,27 +65,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       setLoading(true);
 
-      // Chamar API de login (vamos criar depois)
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, senha }),
+      const response = await api.post("/auth/login", {
+        email,
+        senha,
       });
 
-      if (!response.ok) {
-        throw new Error("Falha ao fazer login");
-      }
+      const accessToken = response.data.accessToken;
+      const loggedUser = decodeJwt(accessToken);
 
-      const data = await response.json();
+      setToken(accessToken);
+      setUser(loggedUser);
 
-      setToken(data.token);
-      setUser(data.user);
-
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", accessToken);
+      localStorage.setItem("user", JSON.stringify(loggedUser));
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Erro desconhecido";
+        err instanceof Error ? err.message : "Erro ao fazer login";
+
       setError(errorMessage);
       throw err;
     } finally {
@@ -66,26 +94,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       setLoading(true);
 
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error("Falha ao criar conta");
-      }
-
-      const responseData = await response.json();
-
-      setToken(responseData.token);
-      setUser(responseData.user);
-
-      localStorage.setItem("token", responseData.token);
-      localStorage.setItem("user", JSON.stringify(responseData.user));
+      await api.post("/usuarios", data);
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Erro desconhecido";
+        err instanceof Error ? err.message : "Erro ao criar conta";
+
       setError(errorMessage);
       throw err;
     } finally {
@@ -113,9 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error,
   };
 
-  return (
-    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
