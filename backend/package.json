@@ -5,6 +5,8 @@
 	"main": "index.ts",
 	"scripts": {
 		"dev": "tsx watch src/server.ts",
+		"build": "tsup",
+		"start": "node dist/server.js",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"lint": "biome check .",
@@ -36,6 +38,7 @@
 		"@types/node": "^26.0.0",
 		"@types/pg": "^8.20.0",
 		"drizzle-kit": "^0.31.10",
+		"tsup": "^8.5.1",
 		"tsx": "^4.22.4",
 		"typescript": "^6.0.3"
 	}

@@ -2,6 +2,90 @@
 
 Esta API fornece recursos para gerenciamento de usuários (alunos e funcionários) e autenticação.
 
+## Como Inicializar
+
+Você pode inicializar a aplicação de duas formas: usando **Docker Compose** ou rodando **diretamente via NPM**.
+
+---
+
+### Opção A: Usando Docker Compose
+
+Esta aplicação está configurada para rodar de forma automatizada usando Docker Compose, inicializando o servidor Node.js backend e o banco de dados PostgreSQL (versão 18).
+
+#### 1. Configurando as Variáveis de Ambiente
+
+Antes de iniciar os contêineres, configure as variáveis de ambiente:
+
+1. Crie um arquivo `.env` na raiz do projeto backend com base no exemplo fornecido:
+   ```bash
+   cp .env.example .env
+   ```
+2. Configure as seguintes chaves no seu arquivo `.env`:
+   - **`DATABASE_URL`**: `postgresql://postgres:SenhaForte@db:5432/sisext_si` (o host `db` aponta automaticamente para o container do banco na rede interna do Docker).
+   - **`JWT_SECRET`**: Chave de segurança exclusiva e forte para assinatura do token JWT.
+   - **`JWT_EXPIRATION_M`**: Tempo de expiração do token JWT em minutos (ex: `60`).
+
+#### 2. Inicializando os Serviços
+
+Com o arquivo `.env` configurado, inicialize os contêineres rodando:
+
+```bash
+docker compose up -d
+```
+
+#### 3. Comandos de Gerenciamento do Docker
+
+- **Visualizar Logs**:
+  ```bash
+  docker compose logs -f
+  ```
+- **Verificar Status**:
+  ```bash
+  docker compose ps
+  ```
+---
+
+### Opção B: Executando Diretamente via NPM
+
+Se você preferir rodar a aplicação localmente sem Docker, siga os passos abaixo:
+
+#### 1. Pré-requisitos
+* Ter o **Node.js** instalado (versão 22 ou superior recomendada).
+* Ter um banco de dados **PostgreSQL** ativo.
+
+#### 2. Configurando as Variáveis de Ambiente
+
+1. Crie um arquivo `.env` na raiz do projeto backend com base no exemplo fornecido:
+   ```bash
+   cp .env.example .env
+   ```
+2. Configure as seguintes chaves no seu arquivo `.env` apontando para o seu banco de dados local:
+   - **`DATABASE_URL`**: `postgresql://<usuario>:<senha>@localhost:5432/<nome_do_banco>`.
+   - **`JWT_SECRET`**: Chave de segurança exclusiva e forte para assinatura do token JWT.
+   - **`JWT_EXPIRATION_M`**: Tempo de expiração do token JWT em minutos (ex: `60`).
+
+#### 3. Instalando as Dependências
+
+```bash
+npm install
+```
+
+#### 4. Executando a Aplicação
+
+* **Modo de Desenvolvimento**:
+  ```bash
+  npm run dev
+  ```
+* **Modo de Produção**:
+  ```bash
+  npm run build
+  npm run start
+  ```
+
+*Nota: As migrações do banco de dados (via Drizzle ORM) são aplicadas automaticamente no banco de dados configurado assim que a aplicação é iniciada.*
+
+---
+
 ##  Sumário de Rotas
 
 | Método | Rota | Descrição | Autenticação | Acesso |
