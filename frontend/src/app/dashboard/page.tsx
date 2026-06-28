@@ -5,14 +5,14 @@ import { User, UserRole } from "@/types";
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const userData = user as User | null;
-  const isAluno = userData?.role === UserRole.ALUNO;
+  const isAluno = user?.papel === "Aluno";
+  const isFuncionario = user?.papel === "Funcionário" || user?.papel === "Membro da comissÃ£o";
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">
-          Bem-vindo, {userData?.nome}!
+          Bem-vindo!
         </h1>
         <p className="mt-2 text-gray-600">
           {isAluno ? "Gerencie suas ações extensionistas" : "Avalie solicitações de ações extensionistas"}
@@ -38,12 +38,14 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {!isAluno && (
+      {isFuncionario && (
         <div className="rounded-lg bg-white p-6 shadow">
           <h3 className="text-lg font-semibold text-gray-900">Painel da Comissão</h3>
           <p className="mt-2 text-gray-600">Avaliações pendentes serão listadas aqui</p>
         </div>
       )}
     </div>
+
+    
   );
 }

@@ -73,6 +73,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const accessToken = response.data.accessToken;
       const loggedUser = decodeJwt(accessToken);
 
+      console.log("Usuário logado:", loggedUser);
+
       setToken(accessToken);
       setUser(loggedUser);
 

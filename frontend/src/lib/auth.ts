@@ -21,7 +21,7 @@ export async function signupUser(
   data: SignupRequest
 ): Promise<LoginResponse> {
   try {
-    const response = await api.post<LoginResponse>("/auth/signup", data);
+    const response = await api.post<LoginResponse>("/usuarios", data);
 
     return response.data;
   } catch (error) {
