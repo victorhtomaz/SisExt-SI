@@ -16,10 +16,10 @@ export function Navbar() {
   const userData = user as User | null;
 
   return (
-    <nav className="bg-blue-600 text-white shadow-lg">
-      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+    <nav className="bg-ufrrj-green text-white shadow-lg">
+      <div className="mx-auto px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          <div className="text-2xl font-bold">SIGAE</div>
+          <div className="text-2xl font-bold">Sistema de Gerenciamento de Atividades Extensionistas</div>
 
           <div className="flex items-center gap-6">
             <div className="text-sm">
